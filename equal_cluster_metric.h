@@ -24,7 +24,7 @@ namespace webgr
 		double f1(unsigned first, unsigned second)
 		{
 			double p = precision(first, second), r = recall(first, second);
-			return (p + r != 0) ? (2 * p*r) / (p + r) : 0;
+			return (fabs(p + r) > 1e-9) ? (2 * p*r) / (p + r) : 0;
 		}
 		unsigned get_g(unsigned arg)
 		{
@@ -81,9 +81,9 @@ namespace webgr
 		unsigned calc_matrix()
 		{
 			std::vector<unsigned> sizes(std::thread::hardware_concurrency(), 0);
-			parallel_for(0u, (unsigned)clusters1.size(), 1u, [&](unsigned i, unsigned tid)
+			parallel_for(0u, (unsigned)clusters1.size(), 1u, [&](unsigned i, unsigned index)
 			{
-				sizes[tid] += clusters1[i].size();
+				sizes[index] += clusters1[i].size();
 				for (unsigned k = 0; k < clusters2.size(); ++k)
 				{
 					foreach_equal_clusters(clusters1[i], clusters2[k], [&](
@@ -109,11 +109,11 @@ namespace webgr
 		}
 		equal_cluster_metric(const std::vector<std::set<unsigned>>& _clusters1,
 			const std::vector<std::set<unsigned>>& _clusters2, unsigned _gr_size) :
-			inrsct_matrix(clusters1.size(), std::vector<unsigned>(clusters2.size(), 0)),
+			inrsct_matrix(_clusters1.size(), std::vector<unsigned>(_clusters2.size(), 0)),
 			clusters1((std::vector<std::set<unsigned>>&)_clusters1),
 			clusters2((std::vector<std::set<unsigned>>&)_clusters2), gr_size(_gr_size)
 		{
-			parallel_for(0u, (unsigned)clusters1.size(), 1u, [&](unsigned i, unsigned tid)
+			parallel_for(0u, (unsigned)clusters1.size(), 1u, [&](unsigned i, unsigned index)
 			{
 				for (unsigned k = 0; k < clusters2.size(); ++k)
 				{
@@ -130,6 +130,27 @@ namespace webgr
 		equal_cluster_metric(equal_cluster_metric&& val) :clusters1(val.clusters1),
 			clusters2(val.clusters2), inrsct_matrix(std::move(val.inrsct_matrix)),
 			gr_size(val.gr_size) {}
+		equal_cluster_metric& operator=(const equal_cluster_metric& val)
+		{
+			if (this == &val)
+				return *this;
+			clusters1 = val.clusters1;
+			clusters2=val.clusters2;
+			inrsct_matrix = val.inrsct_matrix;
+			gr_size = val.gr_size;
+			return *this;
+		}
+		equal_cluster_metric& operator=(equal_cluster_metric&& val)
+		{
+			if (this == &val)
+				return *this;
+			clusters1 = std::move(val.clusters1);
+			clusters2 = std::move(val.clusters2);
+			inrsct_matrix = std::move(val.inrsct_matrix);
+			gr_size = val.gr_size;
+			return  *this;
+		}
+
 		void load(const std::vector<std::set<unsigned>> & _clusters1,
 			const std::vector<std::set<unsigned>>& _clusters2)
 		{
@@ -145,7 +166,7 @@ namespace webgr
 		void calc_g()
 		{
 			g.resize(clusters1.size());
-			parallel_for(0u, (unsigned)clusters1.size(), 1u, [this](unsigned i, unsigned tid)
+			parallel_for(0u, (unsigned)clusters1.size(), 1u, [this](unsigned i, unsigned index)
 			{
 				g[i] = get_g(i);
 			});
@@ -153,7 +174,7 @@ namespace webgr
 		void calc_g_()
 		{
 			g_.resize(clusters2.size());
-			parallel_for(0u, (unsigned)clusters2.size(), 1u, [this](unsigned j, unsigned tid)
+			parallel_for(0u, (unsigned)clusters2.size(), 1u, [this](unsigned j, unsigned index)
 			{
 				g_[j] = get_g_(j);
 			});
@@ -199,15 +220,15 @@ namespace webgr
 	{
 		std::vector<double> sum(th_count, 0);
 		parallel_for(0u, (unsigned)clusters1.size(), 1u, [this, &sum](
-			unsigned i, unsigned tid)
+			unsigned i, unsigned index)
 		{
 			double s = 0;
 			for (unsigned j = 0; j < clusters2.size(); ++j)
 			{
 				double t = (double)inrsct_matrix[i][j] / gr_size;
-				s += (t != 0.0) ? t*log2(t) : 0.0;
+				s += (fabs(t) != 1e-12) ? t*log2(t) : 0.0;
 			}
-			sum[tid] += s;
+			sum[index] += s;
 		}, th_count);
 		double s = 0;
 		for (auto& i : sum)
@@ -220,7 +241,7 @@ namespace webgr
 	{
 		std::vector<double> sum(th_count, 0);
 		parallel_for(0u, (unsigned)clusters1.size(), 1u, [this, &sum](
-			unsigned i, unsigned tid)
+			unsigned i, unsigned index)
 		{
 			double s = 0;
 			for (unsigned j = 0; j < clusters2.size(); ++j)
@@ -229,7 +250,7 @@ namespace webgr
 					log2(((double)inrsct_matrix[i][j] * gr_size) / (
 						clusters1[i].size()*clusters2[j].size()));
 			}
-			sum[tid] += s;
+			sum[index] += s;
 		}, th_count);
 		double s = 0;
 		for (auto& i : sum)
@@ -249,8 +270,8 @@ namespace webgr
 		h = calc_h(std::thread::hardware_concurrency());
 		t1.join();
 		t2.join();
-		return std::abs((h1 + h2 - h) / (h1*h2 > 0) ?
-			sqrt(h1*h2) : sqrt(h1*h2 + 1e-16));
+		return std::abs((h1 + h2 - h) / ((h1*h2 > 0) ?
+			sqrt(h1*h2) : sqrt(h1*h2 + 1e-16)));
 	}
 }
 #endif

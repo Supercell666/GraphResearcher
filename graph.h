@@ -41,7 +41,7 @@ namespace webgr
 	{
 		bool operator()(const ptr_type& first, const ptr_type& second) const
 		{
-			return (*first == *second);
+			return (first == second) || (*first == *second);
 		}
 	};
 
@@ -71,7 +71,8 @@ namespace webgr
 		vertex(type* _Name = nullptr) : in_d(0), out_d(0), loop(0), _name(_Name) {}
 		vertex(const vertex& lnk) :input(lnk.input),
 			output(lnk.output), in_d(lnk.in_d), out_d(lnk.out_d),
-			loop(lnk.loop), _name(new type(*lnk._name)) {}
+			loop(lnk.loop), _name(new type(*lnk._name))
+		{}
 		vertex(vertex&& lnk) :input(std::move(lnk.input)),
 			in_d(std::move(lnk.in_d)), out_d(std::move(lnk.out_d)),
 			output(std::move(lnk.output)), loop(std::move(lnk.loop)),
@@ -290,7 +291,7 @@ namespace webgr
 		typedef type vertex_name_type;
 		typedef e_count_type edge_count_type;
 	private:
-		std::queue<unsigned> deleted;
+		std::queue<unsigned> deleted; // холодные данные
 		edge_count_type m; // Число рёбер
 		mutable std::vector<vertex<type, edge_value_type>> v; // индекс вершины на её параметры
 		mutable std::map<type*, unsigned, compare_type<type*>> reindexed; // имя вершины на её индекс
@@ -309,22 +310,31 @@ namespace webgr
 			gr.it_end = nullptr;
 		}
 
-		void operator=(graph&& gr)
+		graph& operator=(graph&& gr)
 		{
+			if (this == &gr)
+				return *this;
 			m = gr.m;
 			v = std::move(gr.v);
 			reindexed = std::move(gr.reindexed);
+			if (it_end != nullptr)
+				delete it_end;
 			it_end = nullptr;
 			gr.it_end = nullptr;
 			deleted = std::move(gr.deleted);
 			gr.m = 0;
+			return *this;
 		}
 
 		graph& operator=(const graph& gr)
 		{
+			if (this == &gr)
+				return *this;
 			m = gr.m;
 			v = gr.v;
 			reindexed = gr.reindexed;
+			if (it_end != nullptr)
+				delete it_end;
 			it_end = nullptr;
 			deleted = gr.deleted;
 			return *this;
@@ -516,6 +526,12 @@ namespace webgr
 		}
 
 		edge_value_type erase_loops();
+
+		~graph()
+		{
+			if (it_end != nullptr)
+				delete it_end;
+		}
 	};
 
 
@@ -800,8 +816,8 @@ namespace webgr
 	template<class type, class edge_value_type, class e_count_type,
 		template<class> class compare_type>
 	// Объединение двух вершин(second перехоит в first)
-	void graph<type, edge_value_type, e_count_type, compare_type>::merge_by_index(
-		unsigned first, unsigned second)
+	void graph<type, edge_value_type, e_count_type, compare_type>::
+		merge_by_index(unsigned first, unsigned second)
 	{
 		edge_value_type count = this->count_by_index(first, second);
 		if (count > 0)
@@ -871,7 +887,6 @@ namespace webgr
 	}
 
 	typedef graph<unsigned, unsigned, unsigned, compare_ptr> default_graph;
-
 }
 
 #endif // _GRAPH_H_

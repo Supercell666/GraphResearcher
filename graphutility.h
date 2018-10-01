@@ -9,16 +9,15 @@
 #include <queue>
 #include <list>
 #include <thread>
-#include <atomic>
 #include <mutex>
-#include "strchange.h"
+#include <strchange.h>
 #include <unordered_map>
 #include "graph.h"
 #include "bomce.h"
 
 namespace webgr
 {
-	template<class type>
+	/*template<class type>
 	// костыль для работы с vector<atomic<...>>
 	// разрешает копирование
 	class crutch_atomic : public std::atomic<type>
@@ -34,7 +33,7 @@ namespace webgr
 		{
 			return this->load();
 		}
-	};
+	};*/
 
 	// Модель Боллобаша-Риордана
 	default_graph preferred_attachment(unsigned, unsigned);
@@ -134,10 +133,10 @@ namespace webgr
 	{
 		// Требует t*logN памяти
 		// Общая сложность 2*t*N (без учёта выполнения func)
-        std::vector<std::thread> threads(thread_count);
+		std::thread** threads = new std::thread*[thread_count];
 		for (unsigned id = 0; id < thread_count; ++id)
 		{
-            threads[id] = std::thread([id, &thread_count, &begin, &end, &func]() {
+			threads[id] = new std::thread([id, &thread_count, &begin, &end, &func]() {
 				auto it = begin;
 				it = it + id;
 				while (it != end)
@@ -148,7 +147,11 @@ namespace webgr
 			});
 		}
 		for (unsigned i = 0; i < thread_count; ++i)
-            threads[i].join();
+		{
+			threads[i]->join();
+			delete threads[i];
+		}
+		delete[] threads;
 	}
 
 	template<class type, class _Function>
@@ -158,18 +161,25 @@ namespace webgr
 	{
 		if (step == type(0))
 			throw("wrong step parameter");
-        std::vector<std::thread> threads(thread_count);
-        for (unsigned id = 0; id < thread_count; ++id)
+		std::thread** threads = new std::thread*[thread_count];
+		for (unsigned id = 0; id < thread_count; ++id)
 		{
-            threads[id] = std::thread([id, &step, &thread_count, &begin, &end, &func]() {
-				for (auto it = begin + step*id; it < end; it += step*thread_count)
+			threads[id] = new std::thread([id, &step, &thread_count,
+				&begin, &end, &func, &threads]()
+			{
+				for (auto it = begin + step*id; it < end;
+					it += step*thread_count)
 				{
 					func(it, id);
 				}
 			});
 		}
 		for (unsigned i = 0; i < thread_count; ++i)
-            threads[i].join();
+		{
+			threads[i]->join();
+			delete threads[i];
+		}
+		delete[] threads;
 	}
 
 	// Модель Боллобаша-Риордана
@@ -205,9 +215,7 @@ namespace webgr
 			for (unsigned k = i + m - 1; k > i;)
 			{
 				for (unsigned h = i; h < k; ++h, --k)
-				{
 					gr.merge_by_index(h, k);
-				}
 			}
 		}
 		return gr;
@@ -346,10 +354,10 @@ namespace webgr
 		return ret;
 	}
 
-    template<class _Iterator, class _Function>
+	template<class _Iterator, class _Function>
 	// Слияние 2х отсортированных контейнеров в 1 отсортированный
-    void merging(const _Iterator& begin1, const _Iterator& end1,
-        const _Iterator& begin2, const _Iterator& end2,	const _Function& func)
+	void merging(const _Iterator& begin1, const _Iterator& end1,
+		const _Iterator& begin2, const _Iterator& end2, const _Function& func)
 	{
 		auto it1 = begin1, it2 = begin2;
 		while (it1 != end1 && it2 != end2)
@@ -474,7 +482,7 @@ namespace webgr
 		auto s_begin = cont2.begin();
 		auto s_end = cont2.end();
 
-        auto cmp = cont1.key_comp();
+		auto cmp = cont1.key_comp();
 
 		if (cmp(*f_begin, *s_begin))
 			f_begin = cont1.lower_bound(*s_begin);
@@ -598,9 +606,9 @@ namespace webgr
 	{
 		std::vector<double> v(thread_count, 0);
 		parallel_for_each(gr.begin(), gr.end(), [&v, &gr](
-			const default_graph::iterator::value_type& it, unsigned t_id)
+			const default_graph::iterator::value_type& it, unsigned id)
 		{
-			v[t_id] += cl_coef(gr, it);
+			v[id] += cl_coef(gr, it);
 		}, thread_count);
 
 		for (unsigned i = 1; i < v.size(); ++i)
@@ -643,7 +651,7 @@ namespace webgr
 		std::vector<unsigned> empt;
 		for (auto& i : gr)
 		{
-			if (i.second.deg() - 2*i.second.loop == 0)
+			if (i.second.deg() - 2 * i.second.loop == 0)
 				empt.push_back(i.first);
 		}
 		do
@@ -656,7 +664,7 @@ namespace webgr
 					default_graph::edge_type>& v)
 				{
 					temp += rt[v.first] / (gr[v.first].deg() -
-						2*gr[v.first].loop);
+						2 * gr[v.first].loop);
 				});
 				/*for (auto& v : gr[i].input)
 				{
@@ -667,8 +675,8 @@ namespace webgr
 				temp = 0;
 				for (auto& k : empt)
 					temp += rt[k];
-				total += c*temp/gr.size() ;
-				total += (1 - c)/gr.size() ;
+				total += c*temp / gr.size();
+				total += (1 - c) / gr.size();
 
 				temp = rt[i];
 				if (abs(temp - total) > dlt)
@@ -685,7 +693,7 @@ namespace webgr
 		}
 		dlt = 1 / dlt;
 		for (auto& i : gr)
-			ret.insert({ i.second.name(), rt[i.first]* dlt });
+			ret.insert({ i.second.name(), rt[i.first] * dlt });
 		return ret;
 	}
 
