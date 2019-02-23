@@ -142,7 +142,6 @@ namespace sprclib
 			lst.node_count = 0;
 		}
 
-<<<<<<< HEAD
 		// Вставка перемещением {front, ..., back} между first и second
 		void _Connect(list_node<type> *&front, list_node<type> *&back,
 			list_node<type> *&first, list_node<type> *&second)
@@ -156,20 +155,6 @@ namespace sprclib
 			{
 				back->right = second;
 				second->left = back;
-=======
-		void _Connect(list_node<type> *first_begin, list_node<type> *first_end,
-			list_node<type> *second_begin, list_node<type> *second_end)
-		{
-			if (first_begin != nullptr)
-			{
-				first_begin->right = second_begin;
-				second_begin->left = first_begin;
-			}
-			if (first_end != nullptr)
-			{
-				first_end->left = second_end;
-				second_end->right = first_end;
->>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			}
 		}
 		void _Init(const list& lst)
@@ -367,11 +352,7 @@ namespace sprclib
 			list_node<type> *node = new list_node<type>(val);
 			node->right = head;
 			head->left = node;
-<<<<<<< HEAD
 			head = node;
-=======
-            head = node;
->>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 		void pop_front()
 		{

@@ -5,10 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include "equal_cluster_metric.h"
-<<<<<<< HEAD
 #include "bomce.h"
-=======
->>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 
 namespace webgr
 {
@@ -20,11 +17,7 @@ namespace webgr
 		for (unsigned i = 0; i < 100; ++i)
 		{
 			auto gr = from_pajek(path + "testgr_" + std::to_string(i) + ".net");
-<<<<<<< HEAD
 			//cl.init(gr);
-=======
-			cl.init(gr);
->>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			while (cl.next_iteration())
 				;
 			std::ifstream fin(path + "default_" + std::to_string(i) + ".txt");
@@ -73,19 +66,11 @@ namespace webgr
 			{
 				default_graph gr(from_pajek("C:\\testgr\\testgr_" +
 					std::to_string(i) + ".net"));
-<<<<<<< HEAD
                 bomce<BOMCE_DEFAULT_GRAPH_ARGS> cl1(orientation::no_orient);
                 cl1.init(gr);
 				while (cl1.next_iteration())
                     ;
                 second = std::move(clusters_from(cl1.result()));
-=======
-				bomce<BOMCE_DEFAULT_GRAPH_ARGS> cl1(orientation::no_orient);
-				cl1.init(gr);
-				while (cl1.next_iteration())
-					;
-				second = std::move(clusters_from(cl1.result()));
->>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			}
 			metric.load(first, second);
 			out.open("C:\\testgr\\nmi2_my.txt", std::ios::app);
@@ -107,11 +92,7 @@ namespace webgr
 			for (unsigned k = 0; k < 100; ++k)
 			{
 				// cl1 = std::move(bomce<BOMCE_DEFAULT_GRAPH_ARGS>(orientation::no_orient));
-<<<<<<< HEAD
 				//cl1.init(gr);
-=======
-				cl1.init(gr);
->>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 				while (cl1.next_iteration())
 					;
 				double mod1 = modular(cl1.result());
@@ -174,11 +155,7 @@ namespace webgr
 				for (unsigned k = 0; k < 100; ++k)
 				{
 					// cl1 = std::move(bomce<BOMCE_DEFAULT_GRAPH_ARGS>(orientation::no_orient));
-<<<<<<< HEAD
 					//cl1.init(gr);
-=======
-					cl1.init(gr);
->>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 					while (cl1.next_iteration())
 						;
 					double mod1 = modular(cl1.result());
@@ -441,13 +418,9 @@ namespace webgr
 	}
 }
 
-<<<<<<< HEAD
 void all_tests()
 {
 
 }
 
 #endif
-=======
-#endif
->>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14

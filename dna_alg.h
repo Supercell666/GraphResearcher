@@ -1,5 +1,4 @@
 #pragma once
-<<<<<<< HEAD
 #ifndef _DNA_ALG
 #define _DNA_ALG
 
@@ -80,24 +79,3 @@ namespace webgr
 */
 
 #endif // _DNA_ALG
-=======
-#ifndef _DNA_ALG_H
-#define _DNA_ALG_H
-
-#include "graphutility.h"
-
-class dna_alg
-{
-public:
-
-	dna_alg()
-	{
-	}
-
-	~dna_alg()
-	{
-	}
-};
-
-#endif // _DNA_ALG_H
->>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
