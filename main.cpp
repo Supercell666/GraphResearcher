@@ -1,15 +1,22 @@
+<<<<<<< HEAD
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include <iostream>
 #include "bomce.h"
 #include "bomce_utils.h"
+=======
+//  0.7315093
+#include <iostream>
+#include "wg_test.h"
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 
 using namespace std;
 using namespace webgr;
 
 int main(int argc, char** argv)
 {
+<<<<<<< HEAD
 	string resultfile = (argc < 2) ? "buddahs_only.net" : argv[1];
 	default_graph gr(webgr::from_file(resultfile));
 	for (auto it = gr.begin(); it != gr.end(); ++it)
@@ -64,5 +71,15 @@ int main(int argc, char** argv)
 		else
 			std::cout << md << std::endl;
 	}
+=======
+    auto gr(from_pajek("/home/user/GraphResearcher/buddahs_only.net"));
+    cout << gr.size() << endl;
+    bomce<BOMCE_DEFAULT_GRAPH_ARGS> cl(orientation::no_orient);
+	cl.init(gr);
+	while (cl.next_iteration())
+		;
+	cout << cl.result().clusters.size();
+	system("pause");
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	return 0;
 }

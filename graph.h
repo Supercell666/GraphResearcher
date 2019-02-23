@@ -9,6 +9,7 @@
 #include <queue>
 #include <iterator>
 #include <type_traits>
+<<<<<<< HEAD
 #include <vector>
 #include <string>
 //#include "graphutility.h"
@@ -45,6 +46,13 @@ namespace webgr
 
 	template<typename ptr_type>
 	// Вычисление хэша по объекту от укозателя
+=======
+#include "graphutility.h"
+
+namespace webgr
+{
+	template<typename ptr_type>
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	class hash_ptr : public std::hash<typename std::remove_pointer<ptr_type>::type>
 	{
 		typedef typename std::hash<typename std::remove_pointer<ptr_type>::type> parrent;
@@ -59,19 +67,28 @@ namespace webgr
 	};
 
 	template<typename ptr_type>
+<<<<<<< HEAD
 	// Аналог less, но для объектов по указателю
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	struct compare_ptr
 	{
 		bool operator()(const ptr_type& first, const ptr_type& second) const
 		{
+<<<<<<< HEAD
 			if (first == second)
 				return false;
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			return (*first < *second);
 		}
 	};
 
 	template<typename ptr_type>
+<<<<<<< HEAD
 	// Проверка равенства объектов по указателю
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	struct eq_ptr
 	{
 		bool operator()(const ptr_type& first, const ptr_type& second) const
@@ -80,6 +97,7 @@ namespace webgr
 		}
 	};
 
+<<<<<<< HEAD
 #define GRAPH_TEMPLATE_DEF class type, class edge_value_type, class e_count_type,\
 	template<class> class compare_type, class iterator_flag
 #define GRAPH_TEMPLATE_ARGS type, edge_value_type, e_count_type,\
@@ -110,6 +128,13 @@ namespace webgr
 
 	template<class type, class edge_value_type>
 	// Данные по вершине графа (имя, степени, соседи, веса рёбер)
+=======
+	template<class type, class edge_value_type, class e_count_type = unsigned,
+		template<class> class compare_type = compare_ptr>
+	class graph;
+
+	template<class type, class edge_value_type = unsigned>
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	class vertex
 	{
 		friend graph<type, edge_value_type>;
@@ -171,14 +196,20 @@ namespace webgr
 			return *_name;
 		}
 
+<<<<<<< HEAD
 		// Степень вершины или суммарный вес входящих и исходящих рёбер
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		edge_value_type deg() const
 		{
 			return in_d + out_d;
 		}
 
 		template<class _Function>
+<<<<<<< HEAD
 		// Выполняет func для каждой соседней вершины
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		void foreach_neighbors(const _Function& func) const
 		{
 			typename std::map<unsigned, edge_value_type>::const_iterator ob = output.begin(),
@@ -193,6 +224,7 @@ namespace webgr
 		}
 	};
 
+<<<<<<< HEAD
 	template<ITERATOR_TEMPLATE_DEF>
 	class base_graph_iterator : public std::iterator < std::bidirectional_iterator_tag,
 		std::pair<unsigned, const vertex<type, edge_value_type>* >>
@@ -304,6 +336,12 @@ namespace webgr
 		template<class> class compare_type, class iterator_type>
 	class iterator_on_map : public std::iterator < std::bidirectional_iterator_tag,
 		typename std::pair<unsigned, vertex<type, edge_value_type>& >>
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type, class iterator_type>
+	class graph_iterator : public std::iterator < std::bidirectional_iterator_tag,
+		typename std::pair<unsigned const&, vertex<type, edge_value_type>& >>
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	{
 		friend graph<type, edge_value_type, e_count_type, compare_type>;
 	public:
@@ -318,22 +356,37 @@ namespace webgr
 		iterator_type it;
 		mutable pointer p; // пара из двух ссылок (lasy паттерн)
 
+<<<<<<< HEAD
 		iterator_on_map(const graph<type, edge_value_type,
+=======
+		graph_iterator(const graph<type, edge_value_type,
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			e_count_type, compare_type>* _gr, const iterator_type& _it) :
 			gr(_gr), it(_it), p(nullptr)
 		{}
 	public:
+<<<<<<< HEAD
 		iterator_on_map() :gr(nullptr), p(nullptr) {}
 		iterator_on_map(const iterator_on_map& iter) :gr(iter.gr), it(iter.it),
 			p((iter.p != nullptr) ? (new value_type(*iter.p)) : nullptr) {}
 		iterator_on_map(iterator_on_map&& iter) :gr(iter.gr), it(std::move(iter.it)),
+=======
+		graph_iterator() :gr(nullptr), p(nullptr) {}
+		graph_iterator(const graph_iterator& iter) :gr(iter.gr), it(iter.it),
+			p((iter.p != nullptr) ? (new value_type(*iter.p)) : nullptr) {}
+		graph_iterator(graph_iterator&& iter) :gr(iter.gr), it(std::move(iter.it)),
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			p(iter.p)
 		{
 			iter.p = nullptr;
 			iter.gr = nullptr;
 		}
 
+<<<<<<< HEAD
 		iterator_on_map& operator=(const iterator_on_map& iter)
+=======
+		graph_iterator& operator=(const graph_iterator& iter)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			if (this == &iter)
 				return *this;
@@ -343,7 +396,11 @@ namespace webgr
 			return *this;
 		}
 
+<<<<<<< HEAD
 		iterator_on_map& operator=(iterator_on_map&& iter)
+=======
+		graph_iterator& operator=(graph_iterator&& iter)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			if (this == &iter)
 				return *this;
@@ -359,7 +416,11 @@ namespace webgr
 			return *this;
 		}
 
+<<<<<<< HEAD
 		iterator_on_map& operator++()
+=======
+		graph_iterator& operator++()
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			++it;
 			if (p != nullptr)
@@ -370,14 +431,22 @@ namespace webgr
 			return *this;
 		}
 
+<<<<<<< HEAD
 		iterator_on_map operator++(int)
+=======
+		graph_iterator operator++(int)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			auto temp = *this;
 			this->operator++();
 			return temp;
 		}
 
+<<<<<<< HEAD
 		iterator_on_map& operator--()
+=======
+		graph_iterator& operator--()
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			--it;
 			if (p != nullptr)
@@ -388,7 +457,11 @@ namespace webgr
 			return *this;
 		}
 
+<<<<<<< HEAD
 		iterator_on_map operator--(int)
+=======
+		graph_iterator operator--(int)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			auto temp = *this;
 			this->operator--();
@@ -396,14 +469,22 @@ namespace webgr
 		}
 
 		template<class gr_iterator>
+<<<<<<< HEAD
 		bool operator==(const iterator_on_map<type, edge_value_type,
+=======
+		bool operator==(const graph_iterator<type, edge_value_type,
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			e_count_type, compare_type, gr_iterator> &it) const
 		{
 			return (it.it == this->it);
 		}
 
 		template<class gr_iterator>
+<<<<<<< HEAD
 		bool operator!=(const iterator_on_map<type, edge_value_type,
+=======
+		bool operator!=(const graph_iterator<type, edge_value_type,
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			e_count_type, compare_type, gr_iterator>& _it) const
 		{
 			return !this->operator==(_it);
@@ -437,7 +518,11 @@ namespace webgr
 			return p;
 		}
 
+<<<<<<< HEAD
 		~iterator_on_map()
+=======
+		~graph_iterator()
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			if (p != nullptr)
 			{
@@ -446,6 +531,7 @@ namespace webgr
 			}
 		}
 	};
+<<<<<<< HEAD
 	*/
 	template<GRAPH_TEMPLATE_DEF>
 	class graph
@@ -458,12 +544,30 @@ namespace webgr
 		typedef e_count_type edge_count_type;
 	private:
 		std::queue<unsigned> deleted; // индексы вершин, помеченные как "удалённые"
+=======
+
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	class graph
+	{
+		friend graph_iterator<type, edge_value_type, e_count_type, compare_type, typename
+			std::map<type*, unsigned, compare_type<type*>>::iterator>;
+	public:
+		typedef graph_iterator<type, edge_value_type, e_count_type, compare_type, typename
+			std::map<type*, unsigned, compare_type<type*>>::iterator> iterator;
+		typedef edge_value_type edge_type;
+		typedef type vertex_name_type;
+		typedef e_count_type edge_count_type;
+	private:
+		std::queue<unsigned> deleted; // холодные данные
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		edge_count_type m; // Число рёбер
 		mutable std::vector<vertex<type, edge_value_type>> v; // индекс вершины на её параметры
 		mutable std::map<type*, unsigned, compare_type<type*>> reindexed; // имя вершины на её индекс
 		mutable iterator* it_end; // не меняется при вставке/удалении
 
 		void erase(type*, unsigned);
+<<<<<<< HEAD
 
 		const vertex<type, edge_value_type>* get_ptr(const typename
 			std::vector<vertex<type, edge_value_type>>::iterator& it) const
@@ -488,6 +592,8 @@ namespace webgr
 		{
 			return it->second;
 		}
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	public:
 		graph() :m(0), it_end(nullptr) {}
 		graph(const graph& gr) :v(gr.v), m(gr.m), reindexed(gr.reindexed),
@@ -663,9 +769,15 @@ namespace webgr
 			return v.size();
 		}
 
+<<<<<<< HEAD
 		const vertex<type, edge_value_type>* operator[](unsigned index) const
 		{
 			return &v[index];
+=======
+		const vertex<type, edge_value_type>& operator[](unsigned index) const
+		{
+			return v[index];
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 
 		void clear()
@@ -719,17 +831,28 @@ namespace webgr
 
 		~graph()
 		{
+<<<<<<< HEAD
 			for (auto& i : reindexed)
 				delete i.first;
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			if (it_end != nullptr)
 				delete it_end;
 		}
 	};
 
 
+<<<<<<< HEAD
 	template<GRAPH_TEMPLATE_DEF>
 	// Удаляет петли
 	edge_value_type graph<GRAPH_TEMPLATE_ARGS>::erase_loops()
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	// Удаляет петли
+	edge_value_type graph<type, edge_value_type, e_count_type,
+		compare_type>::erase_loops()
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	{
 		edge_value_type ret;
 		if (std::is_arithmetic<edge_value_type>::value)
@@ -743,11 +866,20 @@ namespace webgr
 		return ret;
 	}
 
+<<<<<<< HEAD
 	template<GRAPH_TEMPLATE_DEF>
 	// добавление вершины с заданным именем
 	typename graph<GRAPH_TEMPLATE_ARGS>::
 		iterator graph<GRAPH_TEMPLATE_ARGS>::
 		new_vertex(const type& name)
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	// добавление вершины с заданным именем
+	typename graph<type, edge_value_type, e_count_type, compare_type>::
+		iterator graph<type, edge_value_type, e_count_type,
+		compare_type>::new_vertex(const type& name)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	{
 		auto it = reindexed.find((type*)&name);
 		if (it == reindexed.end())
@@ -760,12 +892,20 @@ namespace webgr
 			}
 			else
 			{
+<<<<<<< HEAD
 				auto index = deleted.front();
 				deleted.pop();
 				it = reindexed.insert({ p, index }).first;
 				if (v[index]._name != nullptr)
 					delete v[index]._name;
 				v[index]._name = p;
+=======
+				it = reindexed.insert({ p, deleted.front() }).first;
+				if (v[deleted.front()]._name != nullptr)
+					delete v[deleted.front()]._name;
+				v[deleted.front()]._name = p;
+				deleted.pop();
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			}
 			if (it_end != nullptr)
 			{
@@ -773,6 +913,7 @@ namespace webgr
 				it_end = nullptr;
 			}
 		}
+<<<<<<< HEAD
         return graph<GRAPH_TEMPLATE_ARGS>::iterator(this, it);
 	}
 
@@ -780,6 +921,17 @@ namespace webgr
 	typename graph<GRAPH_TEMPLATE_ARGS>::
 		iterator graph<GRAPH_TEMPLATE_ARGS>
 		::_New_Vertex(const type& name, unsigned index)
+=======
+		return graph<type, edge_value_type, e_count_type,
+			compare_type>::iterator(this, it);
+	}
+
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	typename graph<type, edge_value_type, e_count_type, compare_type>::
+		iterator graph<type, edge_value_type, e_count_type,
+		compare_type>::_New_Vertex(const type& name, unsigned index)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	{
 		auto it = reindexed.find((type*)&name);
 		if (it == reindexed.end())
@@ -795,11 +947,21 @@ namespace webgr
 				it_end = nullptr;
 			}
 		}
+<<<<<<< HEAD
         return graph<GRAPH_TEMPLATE_ARGS>::iterator(this, it);
 	}
 
 	template<GRAPH_TEMPLATE_DEF>
 	void graph<GRAPH_TEMPLATE_ARGS>::erase(
+=======
+		return graph<type, edge_value_type, e_count_type,
+			compare_type>::iterator(this, it);
+	}
+
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	void graph<type, edge_value_type, e_count_type, compare_type>::erase(
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		type* p, unsigned index)
 	{
 		for (auto& i : v[index].input)
@@ -822,9 +984,16 @@ namespace webgr
 		}
 	}
 
+<<<<<<< HEAD
 	template<GRAPH_TEMPLATE_DEF>
 	// Установка n рёбер it_f --> it_s
 	void graph<GRAPH_TEMPLATE_ARGS>::
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	// Установка n рёбер it_f --> it_s
+	void graph<type, edge_value_type, e_count_type, compare_type>::
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		connect_by_index(unsigned it_f, unsigned it_s, edge_value_type n)
 	{
 		if (it_f == it_s)
@@ -833,11 +1002,18 @@ namespace webgr
 		}
 		else
 		{
+<<<<<<< HEAD
 			auto& vout = v[it_f].output;
 			auto it = vout.find(it_s);
 			if (it == vout.end())
 			{
 				vout.insert({ it_s, n });
+=======
+			auto it = v[it_f].output.find(it_s);
+			if (it == v[it_f].output.end())
+			{
+				v[it_f].output.insert({ it_s, n });
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 				v[it_s].input.insert({ it_f, n });
 			}
 			else
@@ -851,9 +1027,16 @@ namespace webgr
 		m += n;
 	}
 
+<<<<<<< HEAD
 	template<GRAPH_TEMPLATE_DEF>
 	edge_value_type graph<GRAPH_TEMPLATE_ARGS>
 		::count_by_name(const type& first,
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	edge_value_type graph<type, edge_value_type, e_count_type,
+		compare_type>::count_by_name(const type& first,
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			const type& second) const
 	{
 		auto it_f = this->reindexed.find(&first);
@@ -867,12 +1050,22 @@ namespace webgr
 		return 0;
 	}
 
+<<<<<<< HEAD
 	template<GRAPH_TEMPLATE_DEF>
 	// Удаление n рёбер it_f --> it_s
 	// Если рёбер меньше, чем n - они удалятся все
 	// Возвращает количество удалённых рёбер
 	edge_value_type graph<GRAPH_TEMPLATE_ARGS>
 		::disconnect_by_index(unsigned it_f,
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	// Удаление n рёбер it_f --> it_s
+	// Если рёбер меньше, чем n - они удалятся все
+	// Возвращает количество удалённых рёбер
+	edge_value_type graph<type, edge_value_type, e_count_type,
+		compare_type>::disconnect_by_index(unsigned it_f,
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			unsigned it_s, edge_value_type n)
 	{
 		edge_value_type ret = n;
@@ -888,9 +1081,14 @@ namespace webgr
 		}
 		else
 		{
+<<<<<<< HEAD
 			auto& v_f_out = v[it_f].output;
 			auto it_fs = v_f_out.find(it_s);
 			if (it_fs == v_f_out.end())
+=======
+			auto it_fs = v[it_f].output.find(it_s);
+			if (it_fs == v[it_f].output.end())
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 				return 0;
 			auto it_sf = v[it_s].input.find(it_f);
 			if (it_fs->second > n)
@@ -902,7 +1100,11 @@ namespace webgr
 			{
 				ret = it_fs->second;
 				v[it_s].input.erase(it_sf);
+<<<<<<< HEAD
 				v_f_out.erase(it_fs);
+=======
+				v[it_f].output.erase(it_fs);
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			}
 		}
 		v[it_f].out_d -= ret;
@@ -911,12 +1113,22 @@ namespace webgr
 		return ret;
 	}
 
+<<<<<<< HEAD
 	template<GRAPH_TEMPLATE_DEF>
 	// Удаление n рёбер it_f --> it_s
 	// Если рёбер меньше, чем n - они удалятся все
 	// Возвращает количество удалённых рёбер
 	edge_value_type graph<GRAPH_TEMPLATE_ARGS>
 		::disconnect_by_index(unsigned it_f, unsigned it_s)
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	// Удаление n рёбер it_f --> it_s
+	// Если рёбер меньше, чем n - они удалятся все
+	// Возвращает количество удалённых рёбер
+	edge_value_type graph<type, edge_value_type, e_count_type,
+		compare_type>::disconnect_by_index(unsigned it_f, unsigned it_s)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	{
 		edge_value_type ret;
 		if (it_f == it_s)
@@ -926,6 +1138,7 @@ namespace webgr
 		}
 		else
 		{
+<<<<<<< HEAD
 			auto& vf_out = v[it_f].output;
 			auto it_fs = vf_out.find(it_s);
 			if (it_fs == vf_out.end())
@@ -933,6 +1146,14 @@ namespace webgr
 			ret = it_fs->second;
 			v[it_s].input.erase(it_f);
 			vf_out.erase(it_fs);
+=======
+			auto it_fs = v[it_f].output.find(it_s);
+			if (it_fs == v[it_f].output.end())
+				return 0;
+			ret = it_fs->second;
+			v[it_s].input.erase(it_f);
+			v[it_f].output.erase(it_fs);
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 		v[it_f].out_d -= ret;
 		v[it_s].in_d -= ret;
@@ -940,12 +1161,22 @@ namespace webgr
 		return ret;
 	}
 
+<<<<<<< HEAD
 	template<GRAPH_TEMPLATE_DEF>
 	// Удаление n рёбер first --> second
 	// Если рёбер меньше, чем n - они удалятся все
 	// Возвращает количество удалённых рёбер
 	edge_value_type graph<GRAPH_TEMPLATE_ARGS>::
 		disconnect_by_name(const type& first,
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	// Удаление n рёбер first --> second
+	// Если рёбер меньше, чем n - они удалятся все
+	// Возвращает количество удалённых рёбер
+	edge_value_type graph<type, edge_value_type, e_count_type,
+		compare_type>::disconnect_by_name(const type& first,
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			const type& second, edge_value_type n)
 	{
 		auto it_f = this->reindexed.find(&first);
@@ -968,12 +1199,23 @@ namespace webgr
 		return 0;
 	}
 
+<<<<<<< HEAD
 	template<GRAPH_TEMPLATE_DEF>
 	// Удаление n рёбер first --> second
 	// Если рёбер меньше, чем n - они удалятся все
 	// Возвращает количество удалённых рёбер
 	edge_value_type graph<GRAPH_TEMPLATE_ARGS>::
 		disconnect_by_name(const type& first, const type& second)
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	// Удаление n рёбер first --> second
+	// Если рёбер меньше, чем n - они удалятся все
+	// Возвращает количество удалённых рёбер
+	edge_value_type graph<type, edge_value_type, e_count_type,
+		compare_type>::disconnect_by_name(const type& first,
+			const type& second)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	{
 		auto it_f = this->reindexed.find(&first);
 		if (it_f != this->reindexed.end())
@@ -995,9 +1237,16 @@ namespace webgr
 		return 0;
 	}
 
+<<<<<<< HEAD
 	template<GRAPH_TEMPLATE_DEF>
 	// Объединение двух вершин(second перехоит в first)
 	void graph<GRAPH_TEMPLATE_ARGS>::
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	// Объединение двух вершин(second перехоит в first)
+	void graph<type, edge_value_type, e_count_type, compare_type>::
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		merge_by_index(unsigned first, unsigned second)
 	{
 		edge_value_type count = this->count_by_index(first, second);
@@ -1026,10 +1275,18 @@ namespace webgr
 		this->erase_by_index(second);
 	}
 
+<<<<<<< HEAD
 	template<GRAPH_TEMPLATE_DEF>
 	// переиндексация вершин графа
 	// устраняет незадействованные индексы
 	void graph<GRAPH_TEMPLATE_ARGS>::reindex()
+=======
+	template<class type, class edge_value_type, class e_count_type,
+		template<class> class compare_type>
+	// переиндексация вершин графа
+	// устраняет незадействованные индексы
+	void graph<type, edge_value_type, e_count_type, compare_type>::reindex()
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	{
 		unsigned left = 0, right = v.size() - 1;
 		for (; left < right; ++left, --right)
@@ -1066,7 +1323,11 @@ namespace webgr
 		deleted = std::move(std::queue<unsigned>());
 	}
 
+<<<<<<< HEAD
 	using default_graph = graph<unsigned, unsigned, unsigned, compare_ptr, iterator_flags<unsigned, unsigned, unsigned, compare_ptr>::map_iterator_flag>;
+=======
+	typedef graph<unsigned, unsigned, unsigned, compare_ptr> default_graph;
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 }
 
 #endif // _GRAPH_H_

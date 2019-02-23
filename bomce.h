@@ -1,6 +1,7 @@
 #pragma once
 #ifndef _BOMCE_H_
 #define _BOMCE_H_
+<<<<<<< HEAD
 #define _M_X64
 
 #include <set>
@@ -23,16 +24,34 @@
 #define BDGA_NOTMOD unsigned, unsigned, unsigned, compare_ptr
 
 //#include "dna_alg.h"
+=======
+
+#include <set>
+#include <map>
+#include <vector>
+#include <memory>
+#include <math.h>
+#include "graphutility.h"
+#include "list.h"
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 
 namespace webgr
 {
 	template<class sum_type>
+<<<<<<< HEAD
 	// Кластер для алгоритма bomce
 	struct bomce_cluster
 	{
 		sum_type e_count, loops; // число рёбер и петель
 		unsigned id, v_count; // id и число вершин
 		sum_type in_sum, out_sum; // суммы входящих и исходящих степеней вершин в кластере
+=======
+	struct bomce_cluster
+	{
+		sum_type e_count, loops;
+		unsigned id, v_count;
+		sum_type in_sum, out_sum;
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 
 		bomce_cluster(unsigned _id = 0) :id(_id), e_count(0),
 			v_count(0), in_sum(0), out_sum(0), loops(0)
@@ -90,6 +109,7 @@ namespace webgr
 		}
 	};
 
+<<<<<<< HEAD
 	BOMCE_TEMPLATE_DEF
 		// Семейство распределений вершин по кластерам
 		// В случае без ГА один энкземпляр на алгоритм
@@ -121,12 +141,47 @@ namespace webgr
 		{
 			const_cast<webgr::graph<BDGA_NOTMOD>&>(temp_graph) = temp_gr;
 		}
+=======
+	template<class sum_type>
+	struct cl_cmp
+	{
+		bool operator()(const typename sprclib::list<bomce_cluster<sum_type>>::
+			iterator& cl1, const typename sprclib::list<bomce_cluster<
+			sum_type>>::iterator& cl2) const
+		{
+			return (cl1->id < cl2->id);
+		}
+	};
+
+#define BOMCE_TEMPLATE_DEF template<class type, class edge_value_type, class e_count_type, template<class> class compare_type>
+#define BOMCE_TEMPLATE_ARGS type, edge_value_type, e_count_type, compare_type
+#define BOMCE_DEFAULT_GRAPH_ARGS unsigned, unsigned, unsigned, compare_ptr
+
+	BOMCE_TEMPLATE_DEF
+		class bomce_vdist_family;
+
+	BOMCE_TEMPLATE_DEF
+		class q_modular
+	{
+	protected:
+		const bomce_vdist_family<BOMCE_TEMPLATE_ARGS>& v_d;
+	public:
+		q_modular(const bomce_vdist_family<BOMCE_TEMPLATE_ARGS>& v_dist) :v_d(v_dist) {}
+
+		virtual double operator()(const typename sprclib::list<bomce_cluster<e_count_type>>::
+			iterator&, e_count_type, unsigned, double) const = 0;
+		virtual double operator()(unsigned, const typename sprclib::list<
+			bomce_cluster<e_count_type>>::iterator&, e_count_type, double) const = 0;
+		virtual double operator()(const typename sprclib::list<
+			bomce_cluster<e_count_type>>::iterator&) const = 0;
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		virtual ~q_modular() {}
 	};
 
 	BOMCE_TEMPLATE_DEF
 		class q_noorient :public q_modular<BOMCE_TEMPLATE_ARGS>
 	{
+<<<<<<< HEAD
 	private:
 		static const mod_type two;
 		mod_type two_ecount;
@@ -162,10 +217,41 @@ namespace webgr
 			q_modular<BOMCE_TEMPLATE_ARGS>::set_graph(temp_gr);
 			two_ecount = mod_type(1) / (two*temp_gr.edge_count());
 		}
+=======
+	public:
+		q_noorient(const bomce_vdist_family<BOMCE_TEMPLATE_ARGS>& v_dist) :
+			q_modular<BOMCE_TEMPLATE_ARGS>(v_dist) {}
+
+		virtual double operator()(const typename sprclib::list<bomce_cluster<
+			e_count_type>>::iterator& cl, e_count_type current_aij,
+			unsigned gr_index, double alpha) const
+		{
+			auto cur = this->v_d.temp_graph[gr_index].deg();
+			return 2.0 * current_aij - alpha*(cl->in_sum + cl->out_sum - cur)*cur /
+				this->v_d.temp_graph.edge_count();
+		}
+
+		virtual double operator()(unsigned gr_index, const typename sprclib::
+			list<bomce_cluster<e_count_type>>::iterator& it_cl,
+			e_count_type aij_temp, double alpha) const
+		{
+			return 2.0 * aij_temp - alpha*this->v_d.temp_graph[gr_index].deg()*
+				(it_cl->in_sum + it_cl->out_sum) / this->v_d.temp_graph.edge_count();
+		}
+
+		virtual double operator()(const typename sprclib::
+			list<bomce_cluster<e_count_type>>::iterator& it_cl) const
+		{
+			return 2.0*it_cl->e_count - std::pow(it_cl->in_sum
+				+ it_cl->out_sum, 2) / (2.0*this->v_d.temp_graph.edge_count());
+		}
+
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		virtual ~q_noorient() {}
 	};
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 	const mod_type q_noorient<BOMCE_TEMPLATE_ARGS>::two(2);
 
 	BOMCE_TEMPLATE_DEF
@@ -209,10 +295,51 @@ namespace webgr
 			q_modular<BOMCE_TEMPLATE_ARGS>::set_graph(temp_gr);
             i_ecount = static_cast<mod_type>(1) / this->temp_graph.edge_count();
 		}
+=======
+		class q_orient :public q_modular<BOMCE_TEMPLATE_ARGS>
+	{
+
+	public:
+		q_orient(const bomce_vdist_family<BOMCE_TEMPLATE_ARGS>& v_dist) :
+			q_modular<BOMCE_TEMPLATE_ARGS>(v_dist) {}
+
+		virtual double operator()(const typename sprclib::list<bomce_cluster<
+			e_count_type>>::iterator& cl, e_count_type current_aij,
+			unsigned gr_index, double alpha) const
+		{
+			auto in_sum = cl->in_sum - this->v_d.temp_graph[gr_index].in_d;
+			auto out_sum = cl->out_sum - this->v_d.temp_graph[gr_index].out_d;
+			auto in_d = this->v_d.temp_graph[gr_index].in_d;
+			auto out_d = this->v_d.temp_graph[gr_index].out_d;
+			return current_aij - (out_d*in_sum + out_sum*in_d)* alpha /
+				this->v_d.temp_graph.edge_count();
+		}
+
+		virtual double operator()(unsigned gr_index, const typename sprclib::list<
+			bomce_cluster<e_count_type>>::iterator& it_cl,
+			e_count_type aij_temp, double alpha) const
+		{
+			auto in_sum = it_cl->in_sum;
+			auto out_sum = it_cl->out_sum;
+			auto in_d = this->v_d.temp_graph[gr_index].in_d;
+			auto out_d = this->v_d.temp_graph[gr_index].out_d;
+			return aij_temp - (out_d*in_sum + out_sum*in_d)* alpha /
+				this->v_d.temp_graph.edge_count();
+		}
+
+		virtual double operator()(const typename sprclib::
+			list<bomce_cluster<e_count_type>>::iterator& it_cl) const
+		{
+			return it_cl->e_count - (double)it_cl->in_sum*it_cl->out_sum /
+				this->v_d.temp_graph.edge_count();
+		}
+
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		virtual ~q_orient() {}
 	};
 
 	template<class v_name_type>
+<<<<<<< HEAD
 	// описание вершины графа для содержимого кластеров
 	struct cl_vertex :public std::pair<unsigned, v_name_type>
 	{
@@ -244,18 +371,26 @@ namespace webgr
 			return this->first;
 		}
 	};
+=======
+	using bomce_tmpresult_type = std::vector<sprclib::list<std::pair<unsigned,
+		v_name_type>>>;
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 
 	BOMCE_TEMPLATE_DEF
 		class bomce;
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Семейство распределений вершин по кластерам
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		class bomce_vdist_family
 	{
 		friend class q_modular<BOMCE_TEMPLATE_ARGS>;
 		friend q_orient<BOMCE_TEMPLATE_ARGS>;
 		friend q_noorient<BOMCE_TEMPLATE_ARGS>;
 		friend bomce<BOMCE_TEMPLATE_ARGS>;
+<<<<<<< HEAD
 		//friend dna_order_alg<BOMCE_TEMPLATE_ARGS>;
 	private:
 		const q_modular<BOMCE_TEMPLATE_ARGS>* q_mod; // метод вычисления оптимальности расположения вершины
@@ -264,10 +399,19 @@ namespace webgr
 		const bomce<BOMCE_TEMPLATE_ARGS>* _alg;
 	public:
 		// Распределение вершин
+=======
+	private:
+		graph<BOMCE_TEMPLATE_ARGS> const& temp_graph;
+		const q_modular<BOMCE_TEMPLATE_ARGS>* q_mod;
+		bomce_tmpresult_type<type> const& temp_result;
+	public:
+
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		class v_distribution
 		{
 			friend bomce<BOMCE_TEMPLATE_ARGS>;
 			friend bomce_vdist_family<BOMCE_TEMPLATE_ARGS>;
+<<<<<<< HEAD
 			//friend dna_order_alg<BOMCE_TEMPLATE_ARGS>;
 
             static const std::uniform_real_distribution<double> dist_begin;
@@ -282,12 +426,28 @@ namespace webgr
 			v_distribution(const bomce_vdist_family* _fam, const std::queue<unsigned>& d_index,
 				const sprclib::list<bomce_cluster<e_count_type>>& _clusters,
 				unsigned vtocl_size) :v_to_cl(vtocl_size),
+=======
+		private:
+			std::queue<unsigned> del_index;
+			sprclib::list<bomce_cluster<e_count_type>> clusters;
+			std::vector<typename sprclib::list<bomce_cluster<
+				e_count_type>>::iterator> v_to_cl;
+			std::vector<e_count_type> loops; // петли исходного графа
+			double alpha;
+			const bomce_vdist_family* fam;
+
+			v_distribution(const bomce_vdist_family* _fam, const std::queue<unsigned>& d_index,
+				const sprclib::list<bomce_cluster<e_count_type>>& _clusters,
+				unsigned vtocl_size, const std::vector<
+				e_count_type>& lps) :v_to_cl(vtocl_size), loops(lps),
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 				del_index(d_index), clusters(_clusters), fam(_fam)
 			{}
 		public:
 			v_distribution(const bomce_vdist_family* _fam = nullptr) :fam(_fam) {}
 			v_distribution(v_distribution&& v_d) :del_index(std::move(v_d.del_index)),
 				v_to_cl(std::move(v_d.v_to_cl)), clusters(std::move(v_d.clusters)),
+<<<<<<< HEAD
 				fam(v_d.fam)
 			{}
 			v_distribution(const v_distribution& v_d) :fam(v_d.fam),
@@ -298,6 +458,17 @@ namespace webgr
 				// работает за n*log(n) и служит "затычкой", используется copy
 
 				std::map<unsigned, cluster_iterator<e_count_type>> id_reindex; // id старого -> итератор на новый
+=======
+				loops(std::move(v_d.loops)), fam(v_d.fam)
+			{}
+			v_distribution(const v_distribution& v_d) :fam(v_d.fam),
+				del_index(v_d.del_index), v_to_cl(v_d.fam->temp_graph.size()), clusters(v_d.clusters),
+				loops(v_d.loops)
+			{
+				// точная копия
+				std::map<unsigned, typename sprclib::list<bomce_cluster<
+					e_count_type>>::iterator> id_reindex; // id старого -> итератор на новый
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 				auto it2 = v_d.clusters.begin();
 				for (auto it = clusters.begin(); it != clusters.end(); ++it, ++it2)
 				{
@@ -309,10 +480,19 @@ namespace webgr
 			v_distribution& operator=(const v_distribution& v_d)
 			{
 				del_index = v_d.del_index;
+<<<<<<< HEAD
                 v_to_cl.resize(family()->alg()->temp_graph.size());
 				clusters = v_d.clusters;
 				fam = v_d.fam;
 				std::map<unsigned, cluster_iterator<e_count_type>> id_reindex; // id старого -> итератор на новый
+=======
+				v_to_cl.resize(temp_graph.size());
+				clusters = v_d.clusters;
+				loops = v_d.loops;
+				fam = v_d.fam;
+				std::map<unsigned, typename sprclib::list<bomce_cluster<
+					e_count_type>>::iterator> id_reindex; // id старого -> итератор на новый
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 				for (auto it = clusters.begin(), it2 = v_d.clusters.begin();
 					it != clusters.end(); ++it, ++it2)
 				{
@@ -324,6 +504,7 @@ namespace webgr
 			}
 			v_distribution& operator=(v_distribution&& v_d)
 			{
+<<<<<<< HEAD
 				// работает линейно
 
 				del_index = std::move(v_d.del_index);
@@ -343,6 +524,27 @@ namespace webgr
 				unsigned, e_count_type, bool need_del = true);
 			mod_type move_vertex(unsigned);
 			mod_type move_vertex(unsigned, const cluster_iterator<e_count_type>&);
+=======
+				del_index = std::move(v_d.del_index);
+				v_to_cl = std::move(v_d.v_to_cl);
+				clusters = std::move(v_d.clusters);
+				loops = std::move(v_d.loops);
+				fam = v_d.fam;
+				return *this;
+			}
+			template<class comp>
+			void _Init(std::map<typename sprclib::list<bomce_cluster<e_count_type>>::
+				iterator, unsigned, comp>&, const std::map<unsigned, edge_value_type>&);
+			void init();
+			void add_to_cl(const typename sprclib::list<bomce_cluster<e_count_type>>::iterator&,
+				unsigned, e_count_type);
+			void make_cluster(unsigned);
+			void erase_from_cl(typename sprclib::list<bomce_cluster<e_count_type>>::iterator&,
+				unsigned, e_count_type);
+			double move_vertex(unsigned);
+			double move_vertex(unsigned, const typename sprclib::list<bomce_cluster<
+				e_count_type>>::iterator&);
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			v_distribution copy();
 			std::vector<v_distribution> copy(unsigned);
 			static std::vector<v_distribution> copy(v_distribution&&, unsigned);
@@ -350,14 +552,21 @@ namespace webgr
 			{
 				return fam;
 			}
+<<<<<<< HEAD
 			void next_iteration(unsigned long long seed);
+=======
+			bool next_iteration(unsigned id);
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			void clear()
 			{
 				v_to_cl.clear();
 				clusters.clear();
 				del_index = std::move(std::queue<unsigned>());
 			}
+<<<<<<< HEAD
 			~v_distribution() {}
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 
 			/*
 				bool operator<(const v_distribution& v_d) const
@@ -388,6 +597,7 @@ namespace webgr
 		};
 	private:
 		friend class v_distribution;
+<<<<<<< HEAD
 		std::vector<v_distribution> dist; // сами распределения(структура не утверждена)
 	public:
 		typedef typename std::vector<v_distribution>::iterator iterator;
@@ -396,12 +606,28 @@ namespace webgr
 			const q_modular<BOMCE_TEMPLATE_ARGS>* _q_mod = nullptr,
 			unsigned dist_count = std::thread::hardware_concurrency()) :
 			_alg(bmc), q_mod(_q_mod), dist(dist_count)
+=======
+		std::vector<v_distribution> dist;
+	public:
+		typedef typename std::vector<v_distribution>::iterator iterator;
+
+		bomce_vdist_family(const graph<BOMCE_TEMPLATE_ARGS>& gr,
+			const bomce_tmpresult_type<type>& tmp_result,
+			const q_modular<BOMCE_TEMPLATE_ARGS>* _q_mod = nullptr,
+			unsigned dist_count = std::thread::hardware_concurrency()) :
+			temp_graph(gr), temp_result(tmp_result),
+			q_mod(_q_mod), dist(dist_count)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			for (auto& i : dist)
 				i.fam = this;
 		}
 
+<<<<<<< HEAD
 		/*bomce_vdist_family(const graph<BDGA_NOTMOD>& gr,
+=======
+		/*bomce_vdist_family(const graph<BOMCE_TEMPLATE_ARGS>& gr,
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 						   const bomce_tmpresult_type<type>& tmp_result, typename
 						   bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution& dist_init,
 						   const q_modular<BOMCE_TEMPLATE_ARGS>* _q_mod = nullptr,
@@ -411,7 +637,11 @@ namespace webgr
 			dist = std::move(dist_init.copy(dist_count));
 		}
 
+<<<<<<< HEAD
 		bomce_vdist_family(const graph<BDGA_NOTMOD>& gr,
+=======
+		bomce_vdist_family(const graph<BOMCE_TEMPLATE_ARGS>& gr,
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 						   const bomce_tmpresult_type<type>& tmp_result, typename
 						   bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution&& dist_init,
 						   const q_modular<BOMCE_TEMPLATE_ARGS>* _q_mod = nullptr,
@@ -428,18 +658,29 @@ namespace webgr
 			v_distribution& dist_init, unsigned count = std::thread::
 			hardware_concurrency())
 		{
+<<<<<<< HEAD
 			dist = std::move(dist_init.copy(count)); // делаем count копий распределения dist_init
+=======
+			dist = std::move(dist_init.copy(count));
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 
 		void init(typename bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
 			v_distribution&& dist_init, unsigned count = std::thread::
 			hardware_concurrency())
 		{
+<<<<<<< HEAD
 			// делаем count копий распределения dist_init
 			dist = std::move(bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
 				v_distribution::copy(std::move(dist_init), count));
 		}
 		void init(const bomce_params&, unsigned count = std::thread::hardware_concurrency());
+=======
+			dist = std::move(bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
+				v_distribution::copy(std::move(dist_init), count));
+		}
+		void init(unsigned count = std::thread::hardware_concurrency());
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		iterator begin() const
 		{
 			return dist.begin();
@@ -465,6 +706,7 @@ namespace webgr
 			return dist.size();
 		}
 
+<<<<<<< HEAD
 		void resize(unsigned size)
 		{
 			dist.resize(size);
@@ -492,10 +734,17 @@ namespace webgr
 		~bomce_vdist_family()
 		{
 			delete q_mod;
+=======
+		~bomce_vdist_family()
+		{
+			if (q_mod != nullptr)
+				delete q_mod;
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 	};
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Диапазон возможных вариантов для начального значения индекса масштабирования кластеров
 		const std::uniform_real_distribution<double>
 		bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::dist_begin(0.6, 0.8);
@@ -506,24 +755,41 @@ namespace webgr
 		bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::dist_end(1.1, 1.3);
 
 	BOMCE_TEMPLATE_DEF
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		using v_dist = typename bomce_vdist_family<BOMCE_TEMPLATE_ARGS>
 		::v_distribution;
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Реиннициализация распределения вершин
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		void bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::init()
 	{
 		del_index = std::move(std::queue<unsigned>());
 		clusters.clear();
+<<<<<<< HEAD
 		auto& temp_graph = family()->alg()->temp_graph;
 		v_to_cl.resize(temp_graph.size());
 		for (auto& i : temp_graph)
 		{
 			make_cluster(i.first);
+=======
+		v_to_cl.resize(family()->temp_graph.size());
+		loops.resize(family()->temp_graph.size());
+		for (auto& i : family()->temp_graph)
+		{
+			((bomce_tmpresult_type<type>&)family()->temp_result)[i.first] =
+			{ std::make_pair(i.first, i.second.name()) };
+			make_cluster(i.first);
+			loops[i.first] = i.second.loop;
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 	}
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Добавление вершины и индексом gr_index в кластер _cl, где aij_sum_delt -
 		// число рёбер(или их суммарный вес) между gr_index и другими вершинами этого кластера
 		void bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::
@@ -544,6 +810,24 @@ namespace webgr
 	BOMCE_TEMPLATE_DEF
 		// Создание кластера с единственной вершиной gr_index в нём
 		// Перед вызовом удалить вершину и кластера, в котором она лежит
+=======
+		void bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::
+		add_to_cl(const typename sprclib::list<bomce_cluster<
+			e_count_type>>::iterator& cl, unsigned gr_index,
+			e_count_type aij_sum_delt)
+	{
+		v_to_cl[gr_index] = cl;
+		cl->v_count += family()->temp_result[gr_index].size();
+		cl->e_count += aij_sum_delt + family()->temp_graph[gr_index].loop;
+		cl->in_sum += family()->temp_graph[gr_index].in_d;
+		cl->out_sum += family()->temp_graph[gr_index].out_d;
+		cl->loops += loops[gr_index];
+	}
+
+	BOMCE_TEMPLATE_DEF
+		// Для тех случаев, когда у вершины нет смежных рёбер
+		// Возвращает номер созданного кластера.
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		void bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::
 		make_cluster(unsigned gr_index)
 	{
@@ -560,6 +844,7 @@ namespace webgr
 	}
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Удаление вершины current из кластера _it. aij_temp  - число рёбер
 		// (или их суммарный вес) между current и другими вершинами из _it,
 		// need_del - флаг, нужно ли удалять _it если он станет пустым
@@ -581,35 +866,71 @@ namespace webgr
 			it.in_sum -= t->in_d;
 			it.out_sum -= t->out_d;
 			it.loops -= t->loop;
+=======
+		void bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::
+		erase_from_cl(typename sprclib::list<bomce_cluster<
+			e_count_type>>::iterator& it, unsigned current,
+			e_count_type aij_temp)
+	{
+		if ((it->v_count -= family()->temp_result[current].size()) <= 0)
+		{
+			del_index.push(it->id);
+			clusters.erase(it);
+			//it = clusters.end();
+		}
+		else
+		{
+			it->e_count -= aij_temp + family()->temp_graph[current].loop;
+			it->in_sum -= family()->temp_graph[current].in_d;
+			it->out_sum -= family()->temp_graph[current].out_d;
+			it->loops -= loops[current];
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 		v_to_cl[current] = clusters.end();
 	}
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// перемещает вершину с индексом gr_index в кластер cl
 		// удаление из предыдущего и пересчёт рёбер происходит 
 		mod_type bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::
 		move_vertex(unsigned gr_index, const cluster_iterator<e_count_type>& cl)
+=======
+		double bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::
+		move_vertex(unsigned gr_index, const typename sprclib::list<bomce_cluster<
+			e_count_type>>::iterator& cl)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	{
 		if (v_to_cl[gr_index]->id == cl->id)
 			return 0.0;
 		unsigned cur_e = 0, cl_e = 0;
+<<<<<<< HEAD
 		family()->alg()->temp_graph[gr_index].foreach_neighbors(
 			[&](std::pair<unsigned, edge_value_type> pr) // По ссылке может быть UB?
+=======
+		temp_graph[gr_index].foreach_neighbors([&](std::pair<unsigned,
+			edge_value_type> pr)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			if (v_to_cl[pr.first]->id == v_to_cl[gr_index]->id)
 				++cur_e;
 			else if (v_to_cl[pr.first]->id == cl->id)
 				++cl_e;
 		});
+<<<<<<< HEAD
         const auto*& q_mod = family()->alg()->q_mod;
         auto ret = q_mod->operator()(gr_index, *cl, cl_e) -
 			q_mod->operator()(*v_to_cl[gr_index], cur_e, gr_index);
+=======
+		double ret = q_mod->operator()(gr_index, cl, cl_e) -
+			q_mod->operator()(v_to_cl[gr_index], cur_e, gr_index);
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		erase_from_cl(v_to_cl[gr_index], gr_index, cur_e);
 		add_to_cl(cl, gr_index, cl_e);
 		return ret;
 	}
 
+<<<<<<< HEAD
     // иннициализация cl(смежные кластеры)
     BOMCE_TEMPLATE_DEF
     template<class comp>
@@ -617,6 +938,15 @@ namespace webgr
 		_Init(std::map <cluster_iterator<e_count_type>, unsigned,
             comp>& cl, const std::map<unsigned,
 			edge_value_type>& graph_v)
+=======
+	BOMCE_TEMPLATE_DEF
+		template<class comp>
+	// иннициализация cl(смежные кластеры)
+	void bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::
+		_Init(std::map<typename sprclib::list<bomce_cluster<
+			e_count_type>>::iterator, unsigned, comp>& cl,
+			const std::map<unsigned, edge_value_type>& graph_v)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	{
 		for (auto& i : graph_v)
 		{
@@ -629,6 +959,7 @@ namespace webgr
 	}
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Перемещение вершины в соседний кластер на основе q_mod, где максимум - туда и перемещаем
 		mod_type bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::
 		move_vertex(unsigned gr_index)
@@ -646,6 +977,24 @@ namespace webgr
 		auto& temp_graph = family()->alg()->temp_graph;
 		_Init(cl, temp_graph[gr_index]->input);
 		_Init(cl, temp_graph[gr_index]->output);
+=======
+		double bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::
+		move_vertex(unsigned gr_index)
+	{
+		/*
+			пройтись по смежным вершинам
+			получить множество смежных кластеров и смежных вершин
+			определить предпочтительный для присоединения кластер
+			определить предпочтительную для присоединения вершину
+			выполнить либо cluster_add либо make_cluster(модулярность не должна ухудшиться),
+			перед этим выполнив cluster_erase если нужно
+			*/
+		typedef std::map<typename sprclib::list<bomce_cluster<e_count_type>>::iterator,
+			unsigned, cl_cmp<e_count_type>> mp_type;
+		mp_type cl; // смежный кластер на aij_temp(кол. рёбер между it и кластером)
+		_Init(cl, family()->temp_graph[gr_index].input);
+		_Init(cl, family()->temp_graph[gr_index].output);
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		unsigned current_aij = 0;
 		auto it = cl.find(v_to_cl[gr_index]);
 		if (it != cl.end())
@@ -655,6 +1004,7 @@ namespace webgr
 		}
 		if (cl.empty())
 			return 0.0;
+<<<<<<< HEAD
 		typename mp_type::iterator it1 = cl.begin();
 		cluster_iterator<e_count_type>& cl_it = const_cast<
 			cluster_iterator<e_count_type>&>(it1->first);
@@ -668,21 +1018,44 @@ namespace webgr
 				cluster_iterator<e_count_type>&>(it1->first);
 			std::pair<mod_type, unsigned> tmp = { qmod(gr_index,
 				*it_tmp, it1->second), it1->second };
+=======
+		std::pair<double, unsigned> max;
+		// max - наилучшее внекластерное
+		typename sprclib::list<bomce_cluster<e_count_type>>::iterator cl_it;
+		typename mp_type::iterator it1 = cl.begin();
+		max = { family()->q_mod->operator()(gr_index, (cl_it = it1->first),
+				it1->second, alpha), it1->second };
+		for (++it1; it1 != cl.end(); ++it1)
+		{
+			typename sprclib::list<bomce_cluster<e_count_type>>::iterator it_tmp;
+			std::pair<double, unsigned> tmp = { family()->q_mod->operator()(gr_index,
+				(it_tmp = it1->first), it1->second, alpha), it1->second };
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			if (tmp.first > max.first)
 			{
 				max = tmp;
 				cl_it = it_tmp;
 			}
 		}
+<<<<<<< HEAD
 		mod_type p = qmod(*v_to_cl[gr_index],
 			current_aij, gr_index);
 		if (p < max.first && max.first > 0) // при перемещении в друго максимезируется Q
+=======
+		double p = family()->q_mod->operator()(v_to_cl[gr_index],
+			current_aij, gr_index, alpha);
+		if (p < max.first && max.first > 0)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			this->erase_from_cl(v_to_cl[gr_index], gr_index, current_aij);
 			this->add_to_cl(cl_it, gr_index, max.second);
 			return max.first - p;
 		}
+<<<<<<< HEAD
 		else if (p < 0) // При удалении из текущего и перемещении в новый максимезируется Q
+=======
+		else if (p < 0)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			this->erase_from_cl(v_to_cl[gr_index], gr_index, current_aij);
 			make_cluster(gr_index);
@@ -692,25 +1065,40 @@ namespace webgr
 	}
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Возвращает копию текущего распределения за линейное время
 		// При копировании изменяет внутренние индексы а после возвращает как было
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		typename bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution
 		bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution::copy()
 	{
 		v_dist<BOMCE_TEMPLATE_ARGS> ret(fam, del_index, clusters, v_to_cl.size());
+<<<<<<< HEAD
 		std::vector<unsigned> old_index(clusters.size()); // старые индексы
+=======
+		std::vector<unsigned> old_index(clusters.size());
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		unsigned i = 0;
 		for (auto& cl : clusters)
 		{
 			old_index[i] = cl.id;
 			cl.id = i++;
 		}
+<<<<<<< HEAD
 		// переиндексировали кластеры
 		std::vector<cluster_iterator<e_count_type>> new_it(clusters.size());
 		i = 0;
 		for (auto it = ret.clusters.begin(); it != ret.clusters.end(); ++it)
 			new_it[i++] = it;
 		// new_it - индексированый контейнер итераторов на кластеры
+=======
+		std::vector<typename sprclib::list<bomce_cluster<
+			e_count_type>>::iterator> new_it(clusters.size());
+		i = 0;
+		for (auto it = ret.clusters.begin(); it != ret.clusters.end(); ++it)
+			new_it[i++] = it;
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		for (i = 0; i < v_to_cl.size(); ++i)
 			ret.v_to_cl[i] = new_it[v_to_cl[i]->id];
 		i = 0;
@@ -720,8 +1108,11 @@ namespace webgr
 	}
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Возвращает вектор из copy_count копий распределения v_d
 		// При копировании изменяет внутренние индексы а после возвращает как было
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		std::vector<typename bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
 		v_distribution> bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
 		v_distribution::copy(typename bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
@@ -729,11 +1120,18 @@ namespace webgr
 	{
 		std::vector<v_dist<BOMCE_TEMPLATE_ARGS>> ret(copy_count);
 		ret[0] = std::move(v_d);
+<<<<<<< HEAD
 		//static_assert(false, "browken begin iterator in ret[0]");
 		for (unsigned i = 1; i < ret.size(); ++i)
 		{
 			ret[i] = std::move(v_distribution(ret[0].fam, ret[0].del_index,
 				ret[0].clusters, ret[0].v_to_cl.size()));
+=======
+		for (unsigned i = 1; i < ret.size(); ++i)
+		{
+			ret[i] = std::move(v_distribution(ret[0].fam, ret[0].del_index,
+				ret[0].clusters, ret[0].v_to_cl.size(), ret[0].loops));
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 		std::vector<unsigned> old_index(ret[0].clusters.size());
 		unsigned i = 0;
@@ -742,12 +1140,25 @@ namespace webgr
 			old_index[i] = cl.id;
 			cl.id = i++;
 		}
+<<<<<<< HEAD
 		std::vector<cluster_iterator<e_count_type>> new_it(ret[0].clusters.size());
 		for (unsigned k = 1; k < copy_count; ++k)
 		{
 			i = 0;
 			for (auto it = ret[k].clusters.begin(); it != ret[k].clusters.end(); ++it)
 				new_it[i++] = it;
+=======
+		std::vector<typename sprclib::list<bomce_cluster<
+			e_count_type>>::iterator> new_it(ret[0].clusters.size());
+		for (unsigned k = 1; k < copy_count; ++k)
+		{
+			i = 0;
+			for (auto it = ret[k].clusters.begin();
+				it != ret[k].clusters.end(); ++it)
+			{
+				new_it[i++] = it;
+			}
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			for (i = 0; i < ret[0].v_to_cl.size(); ++i)
 				ret[k].v_to_cl[i] = new_it[ret[0].v_to_cl[i]->id];
 		}
@@ -758,8 +1169,11 @@ namespace webgr
 	}
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Возвращает вектор из copy_count копий текущего распределения
 		// При копировании изменяет внутренние индексы а после возвращает как было
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		std::vector<typename bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
 		v_distribution> bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
 		v_distribution::copy(unsigned copy_count)
@@ -768,7 +1182,11 @@ namespace webgr
 		for (auto& i : ret)
 		{
 			i = std::move(v_distribution(fam, del_index,
+<<<<<<< HEAD
 				clusters, v_to_cl.size()));
+=======
+				clusters, v_to_cl.size(), loops));
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 		std::vector<unsigned> old_index(clusters.size());
 		unsigned i = 0;
@@ -777,7 +1195,12 @@ namespace webgr
 			old_index[i] = cl.id;
 			cl.id = i++;
 		}
+<<<<<<< HEAD
 		std::vector<cluster_iterator<e_count_type>> new_it(clusters.size());
+=======
+		std::vector<typename sprclib::list<bomce_cluster<
+			e_count_type>>::iterator> new_it(clusters.size());
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		for (unsigned k = 0; k < copy_count; ++k)
 		{
 			i = 0;
@@ -796,6 +1219,7 @@ namespace webgr
 	}
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Серия проходов по всем вершинам графа в случайном порядке для каждого значения индекса
 		// масштабирования графа
 		void bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
@@ -826,6 +1250,20 @@ namespace webgr
 			const_cast<q_modular<BOMCE_TEMPLATE_ARGS>*>(family()->q_mod)->
 				set_alpha(mod_type(alpha));
 			do // обходы по графу проводятся до тех пор, пока удаётся максимезировать модулярность
+=======
+		bool bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
+		v_distribution::next_iteration(unsigned id)
+	{
+		double contin;
+		std::vector<unsigned> prep(family()->temp_graph.size());
+		for (unsigned i = 0; i < family()->temp_graph.size(); ++i)
+			prep[i] = i;
+		std::mt19937 gen(time(nullptr) + id);
+		bool mooved = false;
+		for (alpha = 0.7; alpha <= 1.3; alpha += 0.2) // 0.222734
+		{
+			do
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			{
 				contin = 0;
 				std::shuffle(prep.begin(), prep.end(), gen);
@@ -833,6 +1271,7 @@ namespace webgr
 				{
 					contin += this->move_vertex(i);
 				}
+<<<<<<< HEAD
 				//static_assert(false, "Method does not converge");
 
 			} while (contin > contin_lim);
@@ -851,11 +1290,25 @@ namespace webgr
 		v_distribution v_d(this);
 		v_d.init();
 		this->params = _param;
+=======
+				mooved = mooved || (contin > 1e-5);
+			} while (contin > 1e-5);
+		}
+        return false; // костыль
+	}
+
+	BOMCE_TEMPLATE_DEF
+		void bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::init(unsigned count)
+	{
+		v_distribution v_d(this);
+		v_d.init();
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		dist = std::move(bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::
 			v_distribution::copy(std::move(v_d), count));
 	}
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Результат кластеризации
 		struct bomce_result
 	{
@@ -863,12 +1316,22 @@ namespace webgr
 		graph<BDGA_NOTMOD> const& connections;
 		// Параметры кластеров
 		std::vector<cluster_iterator<e_count_type>> const& v_to_cl;
+=======
+		struct bomce_result
+	{
+		// Сруктура связей кластеров
+		graph<BOMCE_TEMPLATE_ARGS> const& connections;
+		// Параметры кластеров
+		std::vector<typename sprclib::list<bomce_cluster<e_count_type>>::
+			iterator> const& v_to_cl;
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		// Состав вешин в каждом кластере
 		bomce_tmpresult_type<type> const& vertexes;
 		// Список кластеров
 		sprclib::list<bomce_cluster<e_count_type>> const& clusters;
 		// число петель в исходном графе
 		e_count_type loop_count;
+<<<<<<< HEAD
 		mod_type modularity;
 
 		bomce_result(graph<BDGA_NOTMOD> const& gr,
@@ -917,6 +1380,17 @@ namespace webgr
 			}
 			fout.close();
 		}*/
+=======
+
+		bomce_result(graph<BOMCE_TEMPLATE_ARGS> const& gr,
+			std::vector<typename sprclib::list<bomce_cluster<e_count_type>>::
+			iterator> const& _v_to_cl, bomce_tmpresult_type<
+			type> const& temp_result, sprclib::list<bomce_cluster<
+			e_count_type>> const& _clusters, e_count_type loops) :
+			v_to_cl(_v_to_cl), clusters(_clusters), connections(gr),
+			vertexes(temp_result), loop_count(loops)
+		{}
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	};
 
 	enum class orientation
@@ -926,6 +1400,7 @@ namespace webgr
 	};
 
 	BOMCE_TEMPLATE_DEF
+<<<<<<< HEAD
 		// Кластеризатор
 		class bomce
 	{
@@ -957,18 +1432,44 @@ namespace webgr
 		explicit bomce(orientation ornt) : edge_count(0),
             v_f(this), loop_count(0), seed_dist(1ull, 1ull << 25),
             seed_gen(std::random_device()())
+=======
+		class bomce
+	{
+	private:
+		e_count_type edge_count, loop_count;
+		graph<BOMCE_TEMPLATE_ARGS> temp_graph;
+		// номер кластера на список верщин в нём
+		bomce_tmpresult_type<type> temp_result;
+		bomce_vdist_family<BOMCE_TEMPLATE_ARGS> v_f;
+		unsigned t_count;
+
+		void meta_graph(v_dist<BOMCE_TEMPLATE_ARGS>&);
+		void _Init(unsigned);
+	public:
+
+		explicit bomce(orientation ornt) : edge_count(0), loop_count(0),
+			v_f(temp_graph, temp_result)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		{
 			switch (ornt)
 			{
 			case(orientation::no_orient):
+<<<<<<< HEAD
 				v_f.q_mod = new q_noorient<BOMCE_TEMPLATE_ARGS>(temp_graph);
 				break;
 			case(orientation::orient):
 				v_f.q_mod = new q_orient<BOMCE_TEMPLATE_ARGS>(temp_graph);
+=======
+				v_f.q_mod = new q_noorient<BOMCE_TEMPLATE_ARGS>(v_f);
+				break;
+			case(orientation::orient):
+				v_f.q_mod = new q_orient<BOMCE_TEMPLATE_ARGS>(v_f);
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 				break;
 			}
 		}
 
+<<<<<<< HEAD
 		void init(graph<BDGA_NOTMOD>&& gr, const bomce_params& param,
 			unsigned thread_count = std::thread::hardware_concurrency())
 		{
@@ -992,16 +1493,38 @@ namespace webgr
 				lim = 1;
 			return next_iteration(lim);
 		}
+=======
+		void init(graph<BOMCE_TEMPLATE_ARGS>&& gr,
+			unsigned thread_count = std::thread::hardware_concurrency())
+		{
+			temp_graph = std::move(gr);
+			_Init(thread_count);
+		}
+
+		void init(const graph<BOMCE_TEMPLATE_ARGS>& gr,
+			unsigned thread_count = std::thread::hardware_concurrency())
+		{
+			temp_graph = gr;
+			_Init(thread_count);
+		}
+
+		bool next_iteration();
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 
 		bomce_result<BOMCE_TEMPLATE_ARGS> result() const
 		{
 			return bomce_result<BOMCE_TEMPLATE_ARGS>(temp_graph, v_f[0].v_to_cl,
+<<<<<<< HEAD
 				temp_result, v_f[0].clusters, loop_count, mods[0]);
+=======
+				temp_result, v_f[0].clusters, loop_count);
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 
 		virtual ~bomce() {}
 	};
 
+<<<<<<< HEAD
     /*BOMCE_TEMPLATE_DEF
         const std::uniform_int_distribution<unsigned long long>
         bomce<BOMCE_TEMPLATE_ARGS>::seed_dist(1ull, 1ull << 25);*/
@@ -1114,13 +1637,96 @@ namespace webgr
 			i.id = t++;
 			meta_gr._New_Vertex(i.id, i.id);
 		}
+=======
+	BOMCE_TEMPLATE_DEF
+		void bomce<BOMCE_TEMPLATE_ARGS>::_Init(unsigned _tcount)
+	{
+		edge_count = temp_graph.edge_count();
+		loop_count = 0;
+		temp_result.resize(temp_graph.size());
+		t_count = _tcount;
+		v_f.init(_tcount);
+	}
+
+	BOMCE_TEMPLATE_DEF
+		bool bomce<BOMCE_TEMPLATE_ARGS>::next_iteration()
+	{
+		static std::vector<double> mods(v_f.size(), 0);
+		std::vector<bool> bl(v_f.size(), false);
+		parallel_for(0u, v_f.size(), 1u, [&](unsigned index, unsigned id)
+		{
+            /*if (!v_f[index].next_iteration(id))
+			{
+				bl[index] = false;
+				return;
+            }*/
+            v_f[index].next_iteration(id);
+			double mod = 0;
+			for (auto it = v_f[index].clusters.begin();
+				it != v_f[index].clusters.end(); ++it)
+			{
+				mod += v_f.q_mod->operator()(it);
+			}
+            mod /= 2.0*temp_graph.edge_count();
+            bl[index] = (mod - mods[index] > 1e-5);
+            mods[index] = mod;
+		}, t_count);
+
+		unsigned i_mod = 0;
+		for (unsigned i = 1; i < mods.size(); ++i)
+		{
+			if (mods[i] > mods[i_mod])
+				i_mod = i;
+		}
+		if (bl[i_mod])
+		{
+			std::swap(v_f[0], v_f[i_mod]);
+			std::swap(mods[0], mods[i_mod]);
+			unsigned t = v_f.size();
+			v_f.dist.resize(1);
+			meta_graph(v_f[0]);
+			auto v_d = std::move(v_f[0]);
+			v_f.dist.clear();
+			v_f.init(std::move(v_d), t);
+		}
+		else
+			v_f.init(v_f[i_mod], 1);
+		return bl[i_mod];
+	}
+
+	BOMCE_TEMPLATE_DEF
+		// Создаёт метаграф
+		void bomce<BOMCE_TEMPLATE_ARGS>::meta_graph(
+			v_dist<BOMCE_TEMPLATE_ARGS>& v_d)
+	{
+		decltype(temp_graph) meta_gr;
+		unsigned t = 0;
+        meta_gr._Resize(v_d.clusters.size());
+		for (auto& i : v_d.clusters)
+		{
+			i.id = t;
+//#error Replace the cycle to the graph.resize
+            meta_gr._New_Vertex(t, t);
+            ++t;
+		}
+		std::vector<e_count_type> new_loops(v_d.clusters.size(), 0);
+		for (auto& v : temp_graph)
+			new_loops[v_d.v_to_cl[v.first]->id] += v_d.loops[v.first];
+		v_d.loops = std::move(new_loops);
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		bomce_tmpresult_type<type> tmp_result(v_d.clusters.size());
 		for (auto& i : temp_graph)
 		{
 			t = v_d.v_to_cl[i.first]->id;
+<<<<<<< HEAD
 			tmp_result[t].emplace_after(tmp_result[t].begin(), temp_result[i.first]);
 			meta_gr.connect_by_index(t, t, i.second->loop);
 			for (auto& j : i.second->output)
+=======
+			tmp_result[t].splice(tmp_result[t].end(), temp_result[i.first]);
+			meta_gr.connect_by_index(t, t, i.second.loop);
+			for (auto& j : i.second.output)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 				meta_gr.connect_by_index(t, v_d.v_to_cl[j.first]->id, j.second);
 		}
 		temp_result = std::move(tmp_result);
@@ -1147,7 +1753,11 @@ namespace webgr
 
 	BOMCE_TEMPLATE_DEF
 		double modular2(const bomce_result<BOMCE_TEMPLATE_ARGS>& res,
+<<<<<<< HEAD
 			const graph<BDGA_NOTMOD>& gr)
+=======
+			const graph<BOMCE_TEMPLATE_ARGS>& gr)
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 	{
 		unsigned s = 0;
 		for (auto& i : res.vertexes)
@@ -1166,7 +1776,11 @@ namespace webgr
 				if (vcl[i.first] == vcl[k.first])
 				{
 					e1 += gr.count_by_index(i.first, k.first);
+<<<<<<< HEAD
                     d1 += i.second->deg() * k.second->deg();
+=======
+					d1 += i.second.deg() * k.second.deg();
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 				}
 			}
 		}
@@ -1199,7 +1813,11 @@ namespace webgr
 		for (unsigned i = 0; i < res.vertexes.size(); ++i)
 		{
 			for (auto& el : res.vertexes[i])
+<<<<<<< HEAD
 				ret[i].insert(el.name());
+=======
+				ret[i].insert(el.second);
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 		}
 		return ret;
 	}

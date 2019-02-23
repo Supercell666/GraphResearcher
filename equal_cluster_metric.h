@@ -1,8 +1,11 @@
 #pragma once
 #ifndef EQUAL_CLUSTER_METRIC
 #define EQUAL_CLUSTER_METRIC
+<<<<<<< HEAD
 
 #include <set>
+=======
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 #include "graphutility.h"
 
 namespace webgr
@@ -228,7 +231,11 @@ namespace webgr
 			for (unsigned j = 0; j < clusters2.size(); ++j)
 			{
 				double t = (double)inrsct_matrix[i][j] / gr_size;
+<<<<<<< HEAD
 				s += (fabs(t) > 1e-8) ? t*log2(t) : 0.0;
+=======
+				s += (fabs(t) != 1e-12) ? t*log2(t) : 0.0;
+>>>>>>> a2c79c1ed8cb811c9c12aec25dbae1cb0a5d6b14
 			}
 			sum[index] += s;
 		}, th_count);
