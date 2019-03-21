@@ -10,7 +10,7 @@
 namespace webgr
 {
 	template<class v_name_type>
-	class cl_vertex;
+    struct cl_vertex;
 
 	template<class sum_type>
 	struct bomce_cluster;

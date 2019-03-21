@@ -87,10 +87,10 @@ namespace webgr
     // ????????? ???????? ?????
     struct result_graph_generator
     {
+        unsigned loop_count;
         std::vector<cl_incl> clusters; // ??????? ?? ????? ???????
         std::vector<unsigned> vertexes; // ??????? ?? ???????
         default_graph gr; // ??? ????
-        unsigned loop_count;
 
         result_graph_generator() : loop_count(0) {}
     };
@@ -690,7 +690,7 @@ namespace webgr
             std::function<bool(unsigned, unsigned)> comp([&clc, &gr](
                 unsigned first, unsigned second)
             {
-                if (abs(clc[first] - clc[second]) < 1e-5)
+                if (fabs(clc[first] - clc[second]) < 1e-5)
                     return (gr[first]->deg() < gr[second]->deg());
                 else
                     return (clc[first] < clc[second]);
@@ -698,7 +698,6 @@ namespace webgr
             std::sort(v_s.begin(), v_s.end(), comp);
         }
         double dlt;
-        unsigned count = 0;
         std::vector<unsigned> empt;
         for (auto& i : gr)
         {
@@ -730,7 +729,7 @@ namespace webgr
                 total += (1 - c) / gr.size();
 
                 temp = rt[i];
-                if (abs(temp - total) > dlt)
+                if (fabs(temp - total) > dlt)
                     dlt = std::abs(temp - total);
                 rt[i] = total;
             }
@@ -1077,7 +1076,7 @@ namespace webgr
                 {
                     n.push_back(cnv(params.str));
                 });
-                sprclib::pars(clusters, " ", [&c, &cnv](PARS_ARGS(std::string))
+                sprclib::pars(clusters, " ", [&c](PARS_ARGS(std::string))
                 {
                     c.push_back(std::stoll(params.str) - 1);
                 });

@@ -933,7 +933,7 @@ namespace webgr
         friend class bomce_vdist_family<BOMCE_TEMPLATE_ARGS>::v_distribution;
 
     private:
-        std::uniform_int_distribution<unsigned long long> seed_dist;
+        static std::uniform_int_distribution<unsigned long long> seed_dist;
 
 		e_count_type edge_count, loop_count; // число рёбер и число петель в графе
 		graph<BDGA_NOTMOD> temp_graph; // кластеризуемый граф или его конденсация
@@ -955,7 +955,7 @@ namespace webgr
 	public:
 
 		explicit bomce(orientation ornt) : edge_count(0),
-            v_f(this), loop_count(0), seed_dist(1ull, 1ull << 25),
+            v_f(this), loop_count(0),// seed_dist(1ull, 1ull << 25),
             seed_gen(std::random_device()())
 		{
 			switch (ornt)
@@ -1002,9 +1002,9 @@ namespace webgr
 		virtual ~bomce() {}
 	};
 
-    /*BOMCE_TEMPLATE_DEF
-        const std::uniform_int_distribution<unsigned long long>
-        bomce<BOMCE_TEMPLATE_ARGS>::seed_dist(1ull, 1ull << 25);*/
+    BOMCE_TEMPLATE_DEF
+        std::uniform_int_distribution<unsigned long long>
+        bomce<BOMCE_TEMPLATE_ARGS>::seed_dist(1ull, 1ull << 25);
 
 	BOMCE_TEMPLATE_DEF
 		void bomce<BOMCE_TEMPLATE_ARGS>::_Init(unsigned _tcount,
@@ -1015,7 +1015,7 @@ namespace webgr
 		const_cast<q_modular<BOMCE_TEMPLATE_ARGS>*>(v_f.q_mod)->set_graph(temp_graph);
 		temp_result.resize(temp_graph.capacity());
 		for (auto& i : temp_graph)
-			temp_result[i.first] = { { i.first, i.second->name() } };
+            temp_result[i.first] = { cl_vertex<type>(i.first, i.second->name()) };
 		t_count = _tcount;
 		v_f.init(param, _tcount);
 		mods.resize(t_count);
@@ -1028,8 +1028,8 @@ namespace webgr
 		mod_type bomce<BOMCE_TEMPLATE_ARGS>::_Cluster_Mod(unsigned index)
 	{
         static constexpr unsigned long long module = 1ull << 24;
-        unsigned long long seed = seed_dist(seed_gen) * (index + 1ull) +
-			time(nullptr) % module;
+        unsigned long long seed = bomce<BOMCE_TEMPLATE_ARGS>::seed_dist(seed_gen) *
+                (index + 1ull) + time(nullptr) % module;
 
 		v_f[index].next_iteration(seed);
 		mod_type mod(0);
